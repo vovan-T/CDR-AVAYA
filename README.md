@@ -2,7 +2,7 @@
 
 Web-система для приёма, обработки и просмотра CDR-записей Avaya.
 
-![Avaya CDR Journal](images/cdr-journal.jpg)
+![Avaya CDR Journal](images/cdr-journal-cm1.jpg)
 
 ## Платформа
 
