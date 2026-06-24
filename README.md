@@ -2,6 +2,8 @@
 
 Web-система для приёма, обработки и просмотра CDR-записей Avaya.
 
+![Avaya CDR Journal](images/cdr-journal.jpg)
+
 ## Платформа
 
 - Ubuntu Server
@@ -57,4 +59,3 @@ Web-система для приёма, обработки и просмотра
 Автор: [vovan-T](https://github.com/vovan-T)
 
 Вопросы и предложения можно оставлять в Issues этого репозитория.
-
