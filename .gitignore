@@ -1,0 +1,14 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+logs/
+tmp/
+backup/
+*.tar
+*.tar.gz
+*.zip
+*.sql
+*.dump
+
