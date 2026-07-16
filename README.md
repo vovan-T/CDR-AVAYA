@@ -2,7 +2,7 @@
 
 Web-система для приёма, обработки, хранения и анализа CDR-записей Avaya.
 
-![CDR AVAYA](images/cdr-avaya-overview.png)
+![CDR AVAYA](images/cdr-avaya-systems.png)
 
 ## Возможности
 
