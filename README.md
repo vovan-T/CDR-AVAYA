@@ -6,7 +6,19 @@ CDR AVAYA is a web platform for receiving, processing, storing, and analyzing ca
 
 Base installation: **2.5.0**. Current cumulative update: **2.5.4**.
 
-![CDR AVAYA dashboard](images/cdr-avaya-dashboard.png)
+## Product tour
+
+### Call journal
+
+![CDR AVAYA call journal](https://raw.githubusercontent.com/vovan-T/CDR-AVAYA/main/images/cdr-avaya-dashboard.png)
+
+### Call route and linked source records
+
+![CDR AVAYA linked call details](https://raw.githubusercontent.com/vovan-T/CDR-AVAYA/main/images/cdr-avaya-details.png)
+
+### System diagnostics
+
+![CDR AVAYA system diagnostics](https://raw.githubusercontent.com/vovan-T/CDR-AVAYA/main/images/cdr-avaya-diagnostics.png)
 
 ## Highlights
 
@@ -24,16 +36,6 @@ Base installation: **2.5.0**. Current cumulative update: **2.5.4**.
 - includes service, source, PostgreSQL, Docker, storage, and network diagnostics;
 - provides users, per-ACD permissions, audit history, Support Pack, Backup/Restore, and update rollback;
 - supports online and fully offline Docker deployment on Ubuntu and Astra Linux.
-
-## Interface
-
-### Call route and linked records
-
-![Linked CDR records and call route](images/cdr-avaya-details.png)
-
-### System diagnostics
-
-![Docker service diagnostics](images/cdr-avaya-diagnostics.png)
 
 ## Quick installation
 

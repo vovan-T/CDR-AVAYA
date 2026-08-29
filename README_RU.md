@@ -6,7 +6,19 @@ Web-система для приёма, обработки, хранения и 
 
 Базовая версия установки: **2.5.0**. Текущее кумулятивное обновление: **2.5.4**.
 
-![CDR AVAYA](images/cdr-avaya-dashboard.png)
+## Продукт в работе
+
+### Журнал вызовов
+
+![CDR AVAYA — журнал вызовов](https://raw.githubusercontent.com/vovan-T/CDR-AVAYA/main/images/cdr-avaya-dashboard.png)
+
+### Маршрут и связанные исходные записи
+
+![CDR AVAYA — детали вызова](https://raw.githubusercontent.com/vovan-T/CDR-AVAYA/main/images/cdr-avaya-details.png)
+
+### Системная диагностика
+
+![CDR AVAYA — диагностика](https://raw.githubusercontent.com/vovan-T/CDR-AVAYA/main/images/cdr-avaya-diagnostics.png)
 
 ## Возможности
 
@@ -26,16 +38,6 @@ Web-система для приёма, обработки, хранения и 
 - системный backup/restore, расписания и удалённая копия по SCP;
 - авторизация и разграничение доступа к ACD;
 - offline-установка и версионные обновления через UI.
-
-## Интерфейс
-
-### Маршрут вызова
-
-![CDR AVAYA — связанные записи и маршрут вызова](images/cdr-avaya-details.png)
-
-### Системная диагностика
-
-![CDR AVAYA — диагностика служб и источников](images/cdr-avaya-diagnostics.png)
 
 ## Установка
 
