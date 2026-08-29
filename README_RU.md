@@ -10,15 +10,15 @@ Web-система для приёма, обработки, хранения и 
 
 ### Журнал вызовов
 
-![CDR AVAYA — журнал вызовов](https://github.com/user-attachments/assets/029a38ca-2ab9-468b-b1d0-4efe987d3f12)
+![CDR AVAYA — журнал вызовов](images/cdr-avaya-dashboard.png)
 
 ### Маршрут и связанные исходные записи
 
-![CDR AVAYA — детали вызова](https://github.com/user-attachments/assets/c7a0878d-14e2-4d28-adc1-1e2199593583)
+![CDR AVAYA — детали вызова](images/cdr-avaya-details.png)
 
 ### Системная диагностика
 
-![CDR AVAYA — диагностика](https://github.com/user-attachments/assets/d1fcb65d-8b65-4eee-8f18-c4487f84e606)
+![CDR AVAYA — диагностика](images/cdr-avaya-diagnostics.png)
 
 ## Возможности
 
