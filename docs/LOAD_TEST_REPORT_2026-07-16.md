@@ -1,59 +1,61 @@
-# Отчёт о нагрузочном и аварийном тестировании CDR AVAYA
+# CDR AVAYA Load and Failure Test Report
 
-- Дата испытаний: 16 июля 2026 года
-- Объект испытаний: CDR AVAYA 1.1.13 с экспериментальным ACD Load Balancer и дисковым spool listener
-- Стенд: виртуальная машина VMware
-- Результат: испытания пройдены, прототип готов к переносу в основную ветку разработки
+**English** | [Русский](LOAD_TEST_REPORT_2026-07-16_RU.md)
 
-## 1. Цель испытаний
+- Test date: July 16, 2026
+- System under test: CDR AVAYA 1.1.13 with an experimental ACD Load Balancer and disk-backed listener spool
+- Test stand: VMware virtual machine
+- Result: tests passed; the prototype was accepted for integration into the main development line
 
-Проверить:
+## 1. Objectives
 
-- пропускную способность PostgreSQL при пакетной записи RAW CDR;
-- работу listener и processor под нагрузкой до 20 000 CDR-записей в секунду;
-- справедливое распределение обработки между несколькими ACD;
-- обработку UCID-цепочек без потери и размножения вызовов;
-- сохранность принятого TCP CDR при недоступности PostgreSQL и аварийном завершении listener;
-- отсутствие дублей при повторном чтении дискового журнала.
+The tests evaluated:
 
-## 2. Версии CDR AVAYA
+- PostgreSQL throughput while writing RAW CDR in batches;
+- listener and processor behavior up to an offered rate of 20,000 CDR records/s;
+- fair processing across multiple ACD queues;
+- UCID-chain processing without missing or duplicated calls;
+- preservation of accepted TCP CDR while PostgreSQL is unavailable and after listener termination;
+- duplicate protection when the disk journal is replayed.
 
-Испытания начаты на установленной системе версии `1.1.13`.
+## 2. CDR AVAYA versions
 
-| Модуль | Версия стенда |
+Testing started from installed system version `1.1.13`.
+
+| Module | Test version |
 |---|---:|
 | System | 1.1.13 |
 | UI | 1.1.13 |
 | API | 1.1.13 |
 | Updater | 1.1.12 |
 | Database | 1.1.11 |
-| Listener | 1.1.11 + экспериментальный прототип |
-| Processor | 1.1.11 + экспериментальный прототип |
+| Listener | 1.1.11 plus experimental prototype |
+| Processor | 1.1.11 plus experimental prototype |
 
-Экспериментальные изменения не имеют отдельной релизной версии и на момент испытаний не входят в установочный пакет `1.1.13`.
+The experimental changes did not have a separate release version and were not part of the public 1.1.13 installer at test time.
 
-## 3. Hardware Info
+## 3. Hardware
 
-| Параметр | Значение |
+| Parameter | Value |
 |---|---|
-| Платформа | VMware Virtual Platform, полная виртуализация |
-| Архитектура | x86_64 |
-| Процессор хоста, видимый VM | AMD Ryzen 7 7840HS with Radeon 780M Graphics |
-| Выделено VM | 4 vCPU |
-| Топология VM | 2 сокета, 2 ядра на сокет, 1 поток на ядро |
-| Оперативная память | 8 078 094 336 байт, около 7,52 GiB |
-| Swap | 4 294 963 200 байт, около 4,00 GiB |
-| Диск VM | VMware Virtual S, 50 GiB |
-| Файловая система | ext4 |
-| Заполнение диска во время проверки | 67%, свободно около 15,9 GiB |
-| Ограничения контейнера PostgreSQL | отдельные лимиты CPU и RAM не заданы |
+| Platform | VMware Virtual Platform, full virtualization |
+| Architecture | x86_64 |
+| Host CPU visible to VM | AMD Ryzen 7 7840HS with Radeon 780M Graphics |
+| VM allocation | 4 vCPU |
+| VM topology | 2 sockets, 2 cores per socket, 1 thread per core |
+| RAM | 8,078,094,336 bytes, approximately 7.52 GiB |
+| Swap | 4,294,963,200 bytes, approximately 4.00 GiB |
+| VM disk | VMware Virtual S, 50 GiB |
+| Filesystem | ext4 |
+| Disk utilization during test | 67%, approximately 15.9 GiB free |
+| PostgreSQL container limits | no dedicated CPU or RAM limits |
 
-## 4. Software Info
+## 4. Software
 
-| Компонент | Версия |
+| Component | Version |
 |---|---|
-| ОС | Ubuntu 24.04.4 LTS, Noble Numbat |
-| Ядро | Linux 6.17.0-40-generic |
+| OS | Ubuntu 24.04.4 LTS, Noble Numbat |
+| Kernel | Linux 6.17.0-40-generic |
 | systemd | 255.4-1ubuntu8.16 |
 | Python | 3.12.3 |
 | psycopg2-binary | 2.9.9 |
@@ -66,119 +68,119 @@
 | TypeScript | 5.9.3 |
 | Docker Engine | 29.1.3 |
 | Docker Compose | 2.40.3 |
-| PostgreSQL | 16.14, образ `postgres:16-alpine` |
+| PostgreSQL | 16.14, image `postgres:16-alpine` |
 
-На целевой машине установлены runtime-зависимости. Frontend build-зависимости в production-каталоге не устанавливаются, UI запускается из готового `dist`.
+Runtime dependencies were installed on the target. Frontend build dependencies were not installed in the production directory; the UI ran from a prebuilt `dist` directory.
 
-## 5. Изменения прототипа
+## 5. Prototype changes
 
-- Прямой индексный поиск CM-групп по `ucid` вместо выражения `NULLIF(ucid, '')`.
-- Пакетная запись итоговых Calls и пакетное обновление статуса RAW.
-- Кэширование неизменяемой метаинформации таблиц.
-- Отдельная очередь для каждой ACD.
-- ACD Load Balancer с равномерным циклическим обходом очередей.
-- Адаптивные размеры пакетов: 1, 50, 500, 1000, 5000 и 10000 записей.
-- Пакетная обработка источников SM, EQ и Other.
-- Дисковый журнал `$CDR_HOME/data/spool/<acd>.jsonl` для каждой ACD.
-- Атомарный checkpoint после успешной фиксации пакета в PostgreSQL.
-- Повторное чтение необработанного журнала после перезапуска listener.
-- Устойчивый идентификатор TCP-записи для защиты от дублей.
-- Автоматическое уплотнение журнала после освобождения очереди и достижения 32 MiB.
+- Direct indexed CM lookup by `ucid` instead of `NULLIF(ucid, '')`.
+- Batched Calls insertion and RAW status updates.
+- Caching of immutable table metadata.
+- One independent queue per ACD.
+- Round-robin ACD Load Balancer.
+- Adaptive batches of 1, 50, 500, 1,000, 5,000, and 10,000 records.
+- Batched SM, EQ, and Other processing.
+- Per-ACD disk journal at `$CDR_HOME/data/spool/<acd>.jsonl`.
+- Atomic checkpoint after successful PostgreSQL commit.
+- Replay of unprocessed journal records after listener restart.
+- Stable TCP-record identifier for duplicate protection.
+- Automatic journal compaction after queue release and 32 MiB growth.
 
-## 6. Базовые показатели
+## 6. Baseline measurements
 
-До оптимизации на тестовом наборе были получены следующие ориентиры:
+Before optimization, the test dataset showed:
 
-- listener при одновременной работе старого processor: около 330 RAW-записей/с;
-- CM processor: около 100 RAW-записей/с;
-- поиск UCID-группы через `NULLIF(ucid, '')`: 8,78 мс при 45 000 RAW-записей;
-- прямой индексный поиск `ucid = значение`: 0,08 мс.
+- listener with the previous processor running: approximately 330 RAW records/s;
+- CM processor: approximately 100 RAW records/s;
+- UCID lookup through `NULLIF(ucid, '')`: 8.78 ms at 45,000 RAW records;
+- direct indexed `ucid = value` lookup: 0.08 ms.
 
-## 7. Тест пакетной записи PostgreSQL
+## 7. PostgreSQL batch-write test
 
-В каждом прогоне в тестовую таблицу записывалось 10 000 строк. Исходная CDR-таблица не изменялась.
+Every run inserted 10,000 rows into an isolated test table. The source CDR table was not modified.
 
-| Размер пакета | Транзакций | Время, с | Записей/с |
+| Batch size | Transactions | Time, s | Records/s |
 |---:|---:|---:|---:|
-| 1 | 10 000 | 8,827 | 1 133 |
-| 5 | 2 000 | 1,892 | 5 285 |
-| 30 | 334 | 0,427 | 23 415 |
-| 100 | 100 | 0,251 | 39 800 |
-| 500 | 20 | 0,159 | 63 003 |
-| 1000 | 10 | 0,147 | 68 108 |
+| 1 | 10,000 | 8.827 | 1,133 |
+| 5 | 2,000 | 1.892 | 5,285 |
+| 30 | 334 | 0.427 | 23,415 |
+| 100 | 100 | 0.251 | 39,800 |
+| 500 | 20 | 0.159 | 63,003 |
+| 1,000 | 10 | 0.147 | 68,108 |
 
-Вывод: одиночные INSERT ограничивают скорость примерно 1 100 записей/с. Пакетная запись в 500-1000 строк увеличивает пропускную способность тестовой PostgreSQL примерно до 63 000-68 000 записей/с.
+Single-row INSERT limited throughput to approximately 1,100 records/s. Batches of 500-1,000 rows increased isolated PostgreSQL throughput to approximately 63,000-68,000 records/s.
 
-## 8. Нагрузочные испытания
+## 8. Load tests
 
-Использовались синтетические CM CDR в текущем формате стенда. Указанные скорости относятся к коротким контролируемым прогонам и не являются результатом суточного нагрузочного теста.
+Synthetic CM records used the active customized layout. Rates below describe short controlled bursts, not a 24-hour soak test.
 
-| Сценарий | Результат |
+| Scenario | Result |
 |---|---|
-| Одна ACD, 10 000 записей/с, 5 секунд | Принято 50 000, потерь нет, очередь обработана полностью |
-| Две ACD, по 5 000 записей/с | Принято по 25 000, очереди росли и освобождались равномерно |
-| Две ACD, по 10 000 записей/с | Принято по 50 000, суммарно 100 000 записей |
-| Суммарно 20 000 записей/с | Максимальная очередь около 30 600 записей на каждую ACD, обе очереди обработаны |
-| CPU при суммарных 20 000 записей/с | Максимальная общая загрузка около 53% |
-| Одна ACD со spool, 10 000 записей/с | Принято 50 000, максимальная очередь около 12 000, затем 0 |
-| CPU при тесте со spool | Максимальная общая загрузка около 61% |
+| One ACD, 10,000 records/s for 5 seconds | 50,000 accepted, no loss, queue drained completely |
+| Two ACDs, 5,000 records/s each | 25,000 accepted per ACD; queues grew and drained evenly |
+| Two ACDs, 10,000 records/s each | 50,000 accepted per ACD, 100,000 total |
+| Combined 20,000 records/s | peak queue approximately 30,600 records per ACD; both drained |
+| CPU at combined 20,000 records/s | peak total utilization approximately 53% |
+| One ACD with spool, 10,000 records/s | 50,000 accepted; peak queue approximately 12,000, then zero |
+| CPU during spool test | peak total utilization approximately 61% |
 
-Проверка цепочек вызовов:
+Call-chain validation:
 
-- 5 000 RAW-записей перевода преобразованы ровно в 1 000 Calls;
-- каждый итоговый вызов содержал пять связанных RAW ID;
-- дополнительный прогон 1 000 RAW-записей сформировал ровно 200 Calls.
+- 5,000 transfer RAW records produced exactly 1,000 Calls;
+- every resulting call contained five linked RAW IDs;
+- an additional 1,000-record run produced exactly 200 Calls.
 
-## 9. Аварийное тестирование spool
+## 9. Spool failure test
 
-Проведён контролируемый тест с недоступной PostgreSQL и аварийным завершением listener:
+The controlled PostgreSQL outage and listener failure test used this sequence:
 
-1. PostgreSQL остановлена при checkpoint `70000`.
-2. Listener получил ещё 5 000 записей со скоростью 5 000 записей/с.
-3. В журнале появилось ровно 5 000 строк; checkpoint остался равен `70000`.
-4. Listener принудительно завершён сигналом `SIGKILL`.
-5. После запуска PostgreSQL и автоматического перезапуска listener журнал прочитан повторно.
-6. Checkpoint изменился на `75000`.
-7. В RAW появилось ровно 5 000 новых записей, очередь обработана полностью.
-8. В Calls появилось 5 000 соответствующих вызовов.
+1. PostgreSQL stopped at checkpoint `70000`.
+2. The listener accepted 5,000 additional records at 5,000 records/s.
+3. The journal contained exactly 5,000 new lines while the checkpoint remained `70000`.
+4. The listener was terminated with `SIGKILL`.
+5. PostgreSQL and the listener restarted; pending journal data was replayed.
+6. The checkpoint advanced to `75000`.
+7. RAW contained exactly 5,000 new records and the queue drained completely.
+8. Calls contained 5,000 corresponding results.
 
-Для проверки идемпотентности checkpoint вручную возвращён с `75000` на `70000`. После повторного запуска listener все 5 000 строк были перечитаны, но количество RAW-записей не изменилось. Дубликаты не созданы, checkpoint снова стал равен `75000`.
+For the idempotency check, the checkpoint was manually returned from `75000` to `70000`. The listener replayed the same 5,000 lines, but RAW counts did not change. No duplicates were created and the checkpoint returned to `75000`.
 
-## 10. Режим fsync
+## 10. fsync mode
 
-- Рабочий режим прототипа: пакетный `fsync` каждые 100 мс.
-- В этом режиме подтверждена скорость 10 000 записей/с и восстановление после падения процесса.
-- В режиме `fsync=always` скорость снизилась примерно до 2 035 записей/с.
-- При полном отключении питания в рабочем режиме теоретически могут быть потеряны последние примерно 100 мс журнала.
-- Полностью гарантировать сохранность данных, уже находящихся в TCP-буферах, невозможно без протокола подтверждения и повторной передачи со стороны источника.
+- Prototype operating mode: batched `fsync` every 100 ms.
+- This mode sustained 10,000 records/s and recovered after process termination.
+- `fsync=always` reduced throughput to approximately 2,035 records/s.
+- A complete power loss could theoretically lose the last approximately 100 ms of journal data.
+- Data still present only in TCP buffers cannot be fully guaranteed without source-side acknowledgment and retransmission.
 
-## 11. Автоматические проверки
+## 11. Automated checks
 
-- Python: 132 теста пройдены.
-- Дополнительные параметризованные проверки: 12 пройдены.
-- Проверено уплотнение журнала с сохранением ожидающих записей.
-- После испытаний все службы `cdr-*` имели состояние `active`.
+- Python: 132 tests passed.
+- Additional parameterized checks: 12 passed.
+- Journal compaction preserved pending records.
+- All `cdr-*` services were active after testing.
 - API health: `status=ok`, `db=ok`.
 - PostgreSQL container: `healthy`.
-- Необработанных записей в очередях двух тестовых ACD после теста не осталось.
+- Both test ACD queues were empty after completion.
 
-## 12. Ограничения испытаний
+## 12. Limitations
 
-- Проверены одновременно две ACD, а не планируемые 50 ACD.
-- Максимальная нагрузка подавалась короткими сериями; суточный soak test не проводился.
-- Не проверялось заполнение диска при длительном росте spool.
-- Не моделировалось физическое отключение питания VM или хранилища.
-- Синтетический генератор проверял тракт CDR, но не воспроизводил особенности реального сетевого канала CM.
-- Результаты относятся к указанной конфигурации VM и не являются универсальной гарантией для другого CPU, диска или PostgreSQL.
+- Two concurrent ACDs were tested, not the planned maximum of 50.
+- Peak load was applied in short bursts; no 24-hour soak test was performed.
+- Long-term disk exhaustion caused by continuously growing spool was not tested.
+- Physical power loss of the VM or storage was not reproduced.
+- The synthetic generator validated the CDR path but not every property of a real CM network channel.
+- Results apply to the documented VM and are not a universal guarantee for different CPU, storage, or PostgreSQL configurations.
 
-## 13. Заключение
+## 13. Conclusion
 
-Прототип устранил основные узкие места одиночной записи и последовательного поиска. На тестовой VMware подтверждены:
+The prototype removed the main single-row insertion and sequential lookup bottlenecks. The VMware stand demonstrated:
 
-- приём одной ACD со скоростью 10 000 записей/с;
-- кратковременный суммарный поток 20 000 записей/с от двух ACD;
-- справедливое обслуживание нескольких ACD;
-- восстановление принятого CDR после недоступности DB и `SIGKILL` listener;
-- повторная обработка журнала без дублей.
+- one ACD at an offered 10,000 records/s;
+- short combined bursts of 20,000 records/s from two ACDs;
+- fair service of multiple ACD queues;
+- recovery of accepted CDR after database outage and listener `SIGKILL`;
+- journal replay without duplicate records.
 
-Перед выпуском рекомендуется перенести прототип в основной код, повторить полный набор тестов, провести длительный прогон и отдельный тест с большим числом одновременно активных ACD.
+The recommended next steps were integration into the main codebase, complete regression testing, long-duration testing, and a dedicated test with a larger number of active ACDs.

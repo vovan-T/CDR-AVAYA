@@ -1,43 +1,43 @@
 # CDR AVAYA
 
-Web-система для приёма, обработки, хранения и анализа CDR-записей Avaya.
+**English** | [Русский](README_RU.md)
 
-Базовая версия установки: **2.5.0**. Текущее кумулятивное обновление: **2.5.4**.
+CDR AVAYA is a web platform for receiving, processing, storing, and analyzing call detail records from Avaya systems.
 
-![CDR AVAYA](images/cdr-avaya-dashboard.png)
+Base installation: **2.5.0**. Current cumulative update: **2.5.4**.
 
-## Возможности
+![CDR AVAYA dashboard](images/cdr-avaya-dashboard.png)
 
-- приём Avaya Communication Manager CDR по TCP;
-- работа с настраиваемым `customized` CDR layout;
-- раздельное хранение RAW CDR и итогового журнала;
-- обработка цепочек вызовов по UCID;
-- загрузка и разбор CDR от Session Manager и Equinox Management;
-- приём файлов Avaya SBCE CDR;
-- универсальные источники Other: TCP, File, SCP и SFTP, Flat и XML;
-- отдельные ACD и отдельные цепочки обработки источников;
-- словари номеров, транков, направлений и адресов;
-- фильтры, поиск, CSV-экспорт и просмотр RAW;
-- отдельные наборы колонок `ВИД` для CM, SM, EQ, SBCE и Other;
-- общие `Детали` связанных RAW для SM/SBCE и маршрут SBCE из `Routing Profile`;
-- диагностика служб, источников, PostgreSQL, Docker и дисков;
-- системный backup/restore, расписания и удалённая копия по SCP;
-- авторизация и разграничение доступа к ACD;
-- offline-установка и версионные обновления через UI.
+## Highlights
 
-## Интерфейс
+- receives Avaya Communication Manager CDR over TCP;
+- supports configurable `customized` and unformatted CM layouts;
+- preserves original RAW records separately from the normalized call journal;
+- reconstructs CM call chains by UCID;
+- imports Session Manager and Equinox Management XML records;
+- accepts Avaya SBCE CDR files through the shared SFTP upload account;
+- supports multiple independent CM, SM, EQ, SBCE, and Other sources per ACD;
+- provides dictionaries for extensions, trunks, routes, VDNs, and addresses;
+- offers filters, full-text search, CSV export, RAW mode, and linked record details;
+- keeps separate `View` column catalogs for CM, SM, EQ, SBCE, and Other;
+- displays linked SM/SBCE RAW details and SBCE routes from `Routing Profile`;
+- includes service, source, PostgreSQL, Docker, storage, and network diagnostics;
+- provides users, per-ACD permissions, audit history, Support Pack, Backup/Restore, and update rollback;
+- supports online and fully offline Docker deployment on Ubuntu and Astra Linux.
 
-### Маршрут вызова
+## Interface
 
-![CDR AVAYA — связанные записи и маршрут вызова](images/cdr-avaya-details.png)
+### Call route and linked records
 
-### Системная диагностика
+![Linked CDR records and call route](images/cdr-avaya-details.png)
 
-![CDR AVAYA — диагностика служб и источников](images/cdr-avaya-diagnostics.png)
+### System diagnostics
 
-## Установка
+![Docker service diagnostics](images/cdr-avaya-diagnostics.png)
 
-На Linux-компьютере с доступом в интернет выполните:
+## Quick installation
+
+On a Linux computer with Internet access:
 
 ```bash
 wget https://github.com/vovan-T/CDR-AVAYA/releases/latest/download/install.sh
@@ -45,69 +45,63 @@ chmod +x install.sh
 sudo ./install.sh
 ```
 
-Установщик предложит два режима:
+Choose:
 
-- `online` — установить CDR AVAYA на текущий сервер из готовых Docker-образов;
-- `offline` — скачать три файла, которые затем переносятся на закрытый сервер.
+- `online` to install the release directly on the current server;
+- `offline` to download the three files required by an isolated server.
 
-Установка создаёт два контейнера: `cdr-app` и `cdr-db`. После первого запуска
-доступна учебная ACD `CM1` с listener-портом `5001`.
+The installer deploys `cdr-app` and `cdr-db`. A demonstration ACD named `CM1`, listening on TCP port `5001`, is available after the first start.
 
-Требования, пошаговая установка и команды проверки приведены в
-[инструкции по установке](INSTALL.md). Полное руководство по CM, SM, EQ, SBCE,
-Other, Backup/Restore и диагностике доступно в
-[PDF-руководстве 2.5](docs/cdr-avaya-2.5-manual-ru.pdf).
-Изменения обновлений перечислены в [Release Notes](docs/RELEASE_NOTES.md).
+See the [Installation Guide](INSTALL.md) and the complete manuals:
 
-## Поддерживаемые системы
+- [English PDF manual](docs/cdr-avaya-2.5-manual-en.pdf)
+- [Русское PDF-руководство](docs/cdr-avaya-2.5-manual-ru.pdf)
+- [Release Notes](docs/RELEASE_NOTES.md)
+
+## Supported sources
 
 ### Communication Manager
 
-Принимает CDR по TCP, хранит исходные записи и собирает связанные этапы звонка в единый журнал по UCID. Поддерживает настраиваемые поля CDR, направления, транки, VDN, словари и просмотр полной цепочки вызова.
+Receives CDR over TCP, stores every original record, and reconstructs related call stages into one journal entry by UCID. Customized fields, unformatted records, trunks, VDNs, directions, and dictionaries are supported.
 
 ### Session Manager
 
-Забирает XML CDR с одного или нескольких серверов Session Manager. Сохраняет RAW, формирует отдельный журнал и показывает, с какого сервера получены данные.
+Downloads extended XML CDR from one or more Session Manager servers. The system preserves RAW XML-derived data, builds a dedicated journal, and identifies the source server.
 
 ### Equinox Management
 
-Загружает XML CDR конференций, ведёт журнал конференций и позволяет просматривать их участников. Для нескольких EQ-систем данные и параметры источников учитываются раздельно.
+Imports conference XML records and participants. A root-side staging script copies completed and changing CDR files into the `CDR_User` home area for synchronized collection.
 
 ### Session Border Controller for Enterprise
 
-Принимает файлы CDR от SBCE в выделенные папки. Поддерживает несколько независимых экземпляров SBCE внутри ACD и отдельный просмотр данных каждого экземпляра.
+Receives SBCE CDR files in isolated instance folders. Multiple SBCE instances can coexist inside one ACD. Linked RAW details, `Routing Profile`, and `Server Flow` are available in the UI.
 
 ### Other
 
-Универсальный источник для сторонних систем. Может принимать поток по TCP, читать локальные файлы или забирать их по SCP/SFTP; поддерживает Flat и XML с настраиваемым набором CDR-полей.
+A configurable source for third-party systems. It can receive TCP records, read local files, or fetch data over SCP/SFTP using Flat or XML formats with user-defined fields.
 
-## Нагрузочное тестирование
+## Verified release path
 
-16 июля 2026 года на VMware-стенде проведены нагрузочные и аварийные испытания экспериментального ACD Load Balancer и дискового spool listener.
+The public 2.5.4 release was verified on Ubuntu using the exact sequence:
 
-Подтверждено:
+```text
+clean Docker 2.5.0 -> cumulative update 2.5.4 -> rollback -> 2.5.4 -> commit
+```
 
-- 50 000 записей от одной ACD со скоростью 10 000 записей/с без потерь;
-- кратковременный суммарный поток 20 000 записей/с от двух ACD;
-- равномерная обработка очередей разных ACD;
-- восстановление 5 000 принятых записей после остановки PostgreSQL и `SIGKILL` listener;
-- повторное чтение spool без создания дублей;
-- до 68 108 записей/с в отдельном тесте пакетной записи PostgreSQL.
+The same-version PostgreSQL Backup/Restore path, `CDR_User` password restoration, SFTP login, browser navigation, Docker diagnostics, API health, and published SHA-256 files were also verified.
 
-Тестовый стенд: VMware, 4 vCPU и 7,52 GiB RAM.
+## Load testing
 
-[Полный отчёт с Hardware Info, версиями ПО, методикой и ограничениями](docs/LOAD_TEST_REPORT_2026-07-16.md)
+The VMware test stand processed 50,000 records at an offered rate of 10,000 records/s without loss and recovered queued records after PostgreSQL and listener failures. These are short synthetic test results for the documented hardware, not a universal capacity guarantee.
 
-Важно: показатели относятся к коротким синтетическим прогонам на указанном стенде. Это не результат суточного теста и не универсальная гарантия для любого оборудования.
+[Read the full load-test report](docs/LOAD_TEST_REPORT_2026-07-16.md).
 
-## Статус проекта
+## Project status
 
-Версия 2.5 распространяется как готовые Docker-образы и автономный комплект.
-Исходный код находится в приватном репозитории; этот публичный репозиторий
-содержит документацию, Release-файлы и результаты испытаний.
+CDR AVAYA 2.5 is distributed as ready-to-run Docker images and an offline bundle. The application source is maintained privately; this public repository contains documentation, release assets, screenshots, and test reports.
 
-## Связь
+## Contact
 
-Автор: [vovan-T](https://github.com/vovan-T)
+Author: [vovan-T](https://github.com/vovan-T)
 
-Вопросы и предложения можно оставлять в Issues этого репозитория.
+Use [GitHub Issues](https://github.com/vovan-T/CDR-AVAYA/issues) for questions, deployment feedback, and feature requests.

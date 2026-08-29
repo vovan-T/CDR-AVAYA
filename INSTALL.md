@@ -1,11 +1,37 @@
-# INSTALL
+# CDR AVAYA 2.5 Installation Guide
 
-Документ для установки CDR AVAYA на сервер.
+**English** | [Русский](INSTALL_RU.md)
 
-## Установка версии 2.5
+CDR AVAYA 2.5 is deployed as two Docker containers:
 
-Основной способ установки 2.5 - готовые Docker-образы. На компьютере с
-интернетом скачайте и запустите один файл:
+- `cdr-app` contains the API, web interface, listeners, processors, file collector, and maintenance services;
+- `cdr-db` contains PostgreSQL 16 and the CDR database.
+
+The installer deploys the application only. ACD and telephony source configuration is completed later in the web interface.
+
+## Requirements
+
+- x86-64 Linux host;
+- Ubuntu Server 24.04 or Astra Linux 1.7;
+- Docker Engine and Docker Compose v2;
+- root or sudo access;
+- at least 4 CPU cores, 8 GB RAM, and 40 GB free disk space for a practical production starting point;
+- open TCP port `8010` for the web interface;
+- open source-specific ports such as CM listener port `5001` and SSH/SFTP port `22` when required.
+
+Verify Docker before installation:
+
+```bash
+docker --version
+docker compose version
+sudo docker ps
+```
+
+If Docker or Compose is missing, stop and install the distribution-supported packages before running the CDR installer.
+
+## One-file bootstrap
+
+On a Linux computer with Internet access:
 
 ```bash
 wget https://github.com/vovan-T/CDR-AVAYA/releases/latest/download/install.sh
@@ -13,305 +39,190 @@ chmod +x install.sh
 sudo ./install.sh
 ```
 
-Выберите `online`, чтобы скачать проверенный Release-комплект и установить CDR на текущий сервер. Выберите
-`offline`, чтобы скачать три файла для переноса на закрытый сервер. Скрипт сам
-покажет дальнейшие команды.
+The script asks for one mode:
 
-Подробности: [Docker](docs/DOCKER.md) и
-[PDF-руководство 2.5](frontend/public/docs/cdr-avaya-2.5-manual-ru.pdf).
+- `online` downloads the release and installs it on the current server;
+- `offline` downloads the three files that must be transferred to an isolated server.
 
-Описанные ниже архивы относятся к прежней bare-metal линии установки.
+## Online installation
 
-## Требования
+Select `online` in `install.sh`. The script downloads the published release files, validates their checksum, and starts the regular installer.
 
-- Ubuntu Server 24.04.
-- Доступ root или sudo.
-- Python 3.12+.
-- Node.js 18+.
-- Docker и Docker Compose, если PostgreSQL ставится локально в контейнере.
-- TCP-порт от Avaya CM до сервера CDR.
-- SFTP-доступ от сервера CDR до SM/EQ, если используются файловые источники.
+The installation asks for:
 
-## Online-установка
+- the Web/API port, default `8010`;
+- the `CDR_User` password, entered twice.
 
-Для установки используется подготовленный комплект одной версии:
+The installation path is fixed at `/opt/cdr` for the 2.5 release line.
+
+## Offline installation
+
+Select `offline` on a computer with Internet access. Transfer these files to the isolated server:
 
 ```text
-dist/online/cdr-avaya-online-<version>.tar.gz
-dist/online/install.sh
-dist/online/INSTALL.txt
-dist/online/uninstall.sh
+install-offline.sh
+cdr-avaya-docker-images-2.5.0.tar.gz
+cdr-avaya-docker-images-2.5.0.tar.gz.sha256
 ```
 
-На сервер копируются эти четыре файла в одну папку. Самостоятельно пересобирать
-инсталляционный архив для обычного обновления системы не нужно:
+On the target server:
 
 ```bash
-sudo bash install.sh
+sha256sum -c cdr-avaya-docker-images-2.5.0.tar.gz.sha256
+chmod +x install-offline.sh
+sudo ./install-offline.sh
 ```
 
-Внешний `install.sh` распакует архив во временную папку и запустит install-процедуру.
-На вопрос `Куда ставим? (/opt/cdr):` можно нажать Enter для `/opt/cdr`
-или указать другой полный путь установки.
+The offline installer loads both Docker images locally. It does not contact GHCR or Docker Hub.
 
-Инсталлятор:
+## What the installer creates
 
-- спрашивает папку установки, по умолчанию `/opt/cdr`;
-- создаёт системного пользователя и группу `cdr`;
-- создаёт `.env`;
-- готовит Python venv;
-- готовит Node API/UI;
-- поднимает или подключает PostgreSQL;
-- применяет базовую схему БД;
-- устанавливает systemd-сервисы.
+```text
+/opt/cdr/
+├── backup/
+├── data/
+│   └── sbce/1/
+├── logs/
+├── update/
+├── .ssh/
+├── docker-compose.yml
+├── docker-compose.db.yml
+├── manifest.env
+└── .env
+```
 
-Основной web-интерфейс:
+It also creates:
+
+- host account `CDR_User` for systems that upload CDR files over SFTP;
+- host group `cdr`;
+- restricted SFTP configuration;
+- host bridge units used to preserve and restore `CDR_User` account state during Backup/Restore;
+- Docker volume `cdr_cdr-db-data` for PostgreSQL.
+
+The SFTP root is `/opt/cdr/data`. The first SBCE instance writes to path `sbce/1`, while the SBCE UI field `Path` contains only `1`.
+
+## First start
+
+Open:
 
 ```text
 http://SERVER_IP:8010
 ```
 
-## Offline-установка
+Initial application credentials:
 
-Для закрытого сервера используется подготовленный offline-комплект той же версии:
+```text
+Login:    admin
+Password: admin
+```
+
+The interface requires an administrator password change at first login.
+
+A demonstration ACD named `CM1` is created automatically. Its default CM listener port is `5001`. The demonstration records, dictionary, fields, and display rules can be inspected or the ACD can be deleted after creating a production ACD.
+
+## Verification
 
 ```bash
-sudo bash install.sh --offline
+cd /opt/cdr
+sudo docker compose ps
+curl -sS http://127.0.0.1:8010/api/health
+sudo docker exec cdr-app /opt/cdr/bin/cdr-control.sh post-update-check 2.5.0
 ```
 
-На сервер копируются три файла в одну папку:
+Expected result:
 
 ```text
-install.sh
-uninstaller.sh
-cdr-avaya-offline-<version>.tar.gz
+cdr-app   healthy
+cdr-db    healthy
+{"status":"ok","db":"ok"}
+STATUS: OK
 ```
 
-Offline-режим берёт пакеты из каталога `packages/`.
-Python-пакеты ставятся через `python -m pip`.
-
-Подробно:
-
-- `docs/OFFLINE_BUILD.md` - как собрать offline-дистрибутив;
-- `docs/OFFLINE_INSTALL.md` - как ставить готовый offline-дистрибутив.
-
-## Параметры установки
-
-Если PostgreSQL уже есть, инсталлятор спросит:
-
-```text
-IP/host DB
-Порт DB
-Имя БД
-Логин БД
-Пароль БД
-```
-
-Если PostgreSQL нет, можно выбрать Docker-вариант.
-
-Файл `.env` создаётся инсталлятором во время установки.
-Пользователь не заполняет `.env` вручную: установщик задаёт вопросы, получает значения и записывает итоговый файл сам.
-После окончания заполнения ответов инсталлятор выводит путь, куда будут сохранены параметры.
-
-Основные параметры, которые будут записаны:
-
-```text
-DB_HOST       <---------- IP/host PostgreSQL
-DB_PORT       <---------- порт PostgreSQL, обычно 5432
-DB_NAME       <---------- имя базы CDR, обычно avaya_cdr
-DB_USER       <---------- пользователь PostgreSQL
-DB_PASSWORD   <---------- пароль пользователя PostgreSQL
-TZ            <---------- часовой пояс логов и Node API, например Europe/Moscow
-API_HOST      <---------- IP, на котором слушает Web UI/API; 0.0.0.0 = все интерфейсы
-API_PORT      <---------- порт Web UI/API, обычно 8010
-CDR_HOME      <---------- корневая папка CDR, обычно /opt/cdr
-```
-
-После заполнения всех параметров итоговый файл хранится здесь:
-
-```text
-/opt/cdr/.env
-```
-
-## Сервисы
-
-После установки должны быть активны:
-
-```text
-cdr-api             Node API + Vue UI
-cdr-listener        приём CM CDR по TCP
-cdr-processor       обработчик CM raw -> calls
-cdr-processor-sm    обработчик SM raw -> calls
-cdr-processor-eq    обработчик EQ raw -> calls
-cdr-processor-sbce  обработчик SBCE raw -> calls
-cdr-processor-other обработчик Other raw -> calls
-```
-
-Проверка:
+Check listening ports:
 
 ```bash
-systemctl status cdr-api cdr-listener cdr-processor cdr-processor-sm cdr-processor-eq cdr-processor-sbce cdr-processor-other --no-pager
-curl http://127.0.0.1:8010/api/health
-ss -lntp | grep -E ':5001|:8010'
+sudo ss -lntp | grep -E ':8010|:5001|:22'
 ```
 
-## Avaya CM
+## Installing cumulative update 2.5.4
 
-В CM укажите IP сервера CDR и TCP-порт ACD.
-Для базовой ACD `cm1` используется порт:
+Download both files from the release:
 
 ```text
-5001
+update-2.5.4.tar.gz
+update-2.5.4.tar.gz.sha256
 ```
 
-Рекомендуемый custom-набор полей CM:
-
-```text
-date
-time
-calling-num
-dialed-num
-sec-dur
-cond-code
-in-trk-code
-ucid
-seq-num
-code-dial
-code-used
-vdn
-feat-flag
-in-crt-id
-out-crt-id
-line-feed
-return
-```
-
-Для нормальной обработки обязательны `ucid` и `seq-num`.
-
-## SM
-
-SM используется как файловый источник.
-Файлы забираются по SFTP пользователем `CDR_User`.
-
-Для SM логин и протокол в UI считаются фиксированными:
-
-```text
-login:    CDR_User
-protocol: SFTP
-port:     22
-path:     .
-format:   Enhanced XML File
-```
-
-CDR_User сразу попадает в специальный CDR-каталог SM
-(`/data/home/CDR_User/` на сервере), поэтому в UI используется
-фиксированный путь `.`. Парсер CDR AVAYA обрабатывает только
-Enhanced XML.
-
-Проверка вручную:
+Copy them into `/opt/cdr/update`, verify the checksum, and use `System -> Updates`:
 
 ```bash
-/opt/cdr/venv/bin/python /opt/cdr/listener/sm_fetch.py --acd cm1
-/opt/cdr/venv/bin/python /opt/cdr/listener/processor.py --acd cm1 --source sm --status
+sudo cp update-2.5.4.tar.gz update-2.5.4.tar.gz.sha256 /opt/cdr/update/
+cd /opt/cdr/update
+sudo sha256sum -c update-2.5.4.tar.gz.sha256
 ```
 
-## EQ
+The update is cumulative and can be installed directly over clean Docker 2.5.0. It creates a rollback snapshot according to the update manifest. Use `Rollback` to return to the previous state or `Commit` to accept the update and remove rollback data.
 
-EQ используется как файловый источник XML. На каждой EQMGMT-ноде root-cron
-копирует новые и изменённые XML в staging:
-
-```text
-/home/CDR_User/data
-```
-
-Готовый adjunct: `tools/setup-eq-cdr-staging.sh`.
-Подробно: `docs/EQ_CDR_STAGING.md`.
-
-Проверка вручную:
+CLI equivalents:
 
 ```bash
-/opt/cdr/venv/bin/python /opt/cdr/listener/eq_fetch.py --acd cm1
-/opt/cdr/venv/bin/python /opt/cdr/listener/processor.py --acd cm1 --source eq --status
+sudo docker exec cdr-app /opt/cdr/bin/cdr-control.sh \
+  update /opt/cdr/update/update-2.5.4.tar.gz
+
+sudo docker exec cdr-app /opt/cdr/bin/cdr-control.sh rollback-status
+sudo docker exec cdr-app /opt/cdr/bin/cdr-control.sh rollback
+sudo docker exec cdr-app /opt/cdr/bin/cdr-control.sh update-commit
 ```
 
-## SBCE
+## HTTPS
 
-SBCE сам кладёт файлы на CDR-сервер по SFTP.
-Installer создаёт общего пользователя загрузки файлов `CDR_User` и фиксированную
-папку первого SBCE `sbce/1`. Пароль вводится один раз в основном опросе и
-показывается в итогах установки.
-Для этого требуется системный пакет `openssh-server`; online/offline installer
-включает его в обязательный набор.
-
-Для второго SBCE выполните
-`sudo sh /opt/cdr/bin/add_user_for_files.sh --folder sbce/2`.
-
-В SBCE CDR Adjunct:
+CDR intentionally serves HTTP. Place nginx or another reverse proxy in front of port `8010` for production HTTPS:
 
 ```text
-Address:  SERVER_IP:22
-Username: CDR_User
-Путь:     1
+Browser -> HTTPS reverse proxy -> http://127.0.0.1:8010
 ```
 
-Забытый пароль не отображается. Задайте новый: `sudo passwd CDR_User`.
+Do not expose port `8010` directly to an untrusted network.
 
-Папка на Linux:
+## Backup and Restore
 
-```text
-/opt/cdr/data/sbce/1
-```
-
-Импорт SBCE пропускает свежие файлы младше 10 минут, чтобы не забрать файл во время записи.
-Параметр можно изменить через переменную окружения:
-
-```text
-SBCE_MIN_FILE_AGE_SEC
-```
-
-Подробно: `docs/SBCE_CDR_ADJUNCT.md`.
-
-## Авторизация и системные настройки
-
-После установки выполните вход под `admin` и смените временный пароль.
-Пользователи, пароли и права `Чтение`/`Редактирование` для каждой ACD управляются
-в `Система -> Пользователи`. В системных настройках также доступны backup и
-restore, службы, диагностика, обновления, интерфейс и журнал действий.
-
-## Быстрая проверка после установки
+Create a full same-version PostgreSQL backup:
 
 ```bash
-curl http://127.0.0.1:8010/api/health
-tail -n 80 /opt/cdr/logs/api.log
-tail -n 80 /opt/cdr/logs/listener.log
-tail -n 80 /opt/cdr/logs/processor.log
+sudo docker exec cdr-app /opt/cdr/bin/cdr-backup.sh --database
 ```
 
-Если что-то не работает, см. `docs/TROUBLESHOOTING.md`.
-## Удаление CDR
-
-Штатное удаление запускается из установленной системы:
+Restore it:
 
 ```bash
-sudo /opt/cdr/uninstaller.sh
+sudo docker exec cdr-app /opt/cdr/bin/cdr-backup.sh \
+  --restore /opt/cdr/backup/cdr-db-HOST-YYYYMMDD-HHMMSS.tar.gz \
+  --confirm RESTORE --yes
 ```
 
-Если CDR установлен в другую папку, используйте путь к `uninstaller.sh` в ней.
-Скрипт сначала запрашивает внешнюю папку для backup, создаёт полный системный
-архив и проверяет в нём `manifest.env` и `db.dump`. Только после успешной
-проверки он останавливает и удаляет CDR services, cron, logrotate, sudoers,
-SBCE SSH-конфигурацию, контейнер `cdr-db` с его Compose volume, пользователей
-CDR и каталог установки. Docker Engine, Docker images и системные пакеты не
-удаляются.
+Standard Restore requires exact equality between Backup DB version and System DB version. Use the documented Migration Tool process for a different DB version.
 
-Внешний `uninstaller.sh` из текущего дистрибутива содержит backup helper и
-создаёт `CDR_BACKUP_V1`: полный `db.dump`, portable CSV payload каждой ACD,
-системные данные и настройки. Перед удалением проверяется наличие portable ACD
-payload и его формат в `manifest.env`.
+## Password recovery
 
-Backup перед удалением можно проверить отдельно, не останавливая службы и не
-изменяя CDR:
+If an administrator cannot sign in:
 
 ```bash
-sudo ./uninstaller.sh --backup-only
+sudo docker exec -it cdr-app \
+  /opt/cdr/venv/bin/python /opt/cdr/bin/cdr-reset-password.py admin
 ```
+
+## Logs and Support Pack
+
+Application logs are stored under `/opt/cdr/logs`. In the UI, open `System -> Diagnostics -> Support Pack` to create an archive for technical support.
+
+Useful commands:
+
+```bash
+sudo docker logs --tail 120 cdr-app
+sudo docker logs --tail 120 cdr-db
+sudo docker exec cdr-app /opt/cdr/bin/cdr-control.sh docker-diagnostics
+```
+
+## Next steps
+
+Continue with the [English PDF manual](docs/cdr-avaya-2.5-manual-en.pdf) for Communication Manager, Session Manager, Equinox Management, SBCE, Other, administration, Backup/Restore, and troubleshooting.
