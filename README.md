@@ -10,15 +10,15 @@ Base installation: **2.5.0**. Current cumulative update: **2.5.4**.
 
 ### Call journal
 
-![CDR AVAYA call journal](https://vovan-t.github.io/CDR-AVAYA/images/cdr-avaya-dashboard.png)
+![CDR AVAYA call journal](./images/cdr-avaya-dashboard.png)
 
 ### Call route and linked source records
 
-![CDR AVAYA linked call details](https://vovan-t.github.io/CDR-AVAYA/images/cdr-avaya-details.png)
+![CDR AVAYA linked call details](./images/cdr-avaya-details.png)
 
 ### System diagnostics
 
-![CDR AVAYA system diagnostics](https://vovan-t.github.io/CDR-AVAYA/images/cdr-avaya-diagnostics.png)
+![CDR AVAYA system diagnostics](./images/cdr-avaya-diagnostics.png)
 
 ## Highlights
 

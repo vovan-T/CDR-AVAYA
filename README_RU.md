@@ -10,15 +10,15 @@ Web-система для приёма, обработки, хранения и 
 
 ### Журнал вызовов
 
-![CDR AVAYA — журнал вызовов](https://vovan-t.github.io/CDR-AVAYA/images/cdr-avaya-dashboard.png)
+![CDR AVAYA — журнал вызовов](./images/cdr-avaya-dashboard.png)
 
 ### Маршрут и связанные исходные записи
 
-![CDR AVAYA — детали вызова](https://vovan-t.github.io/CDR-AVAYA/images/cdr-avaya-details.png)
+![CDR AVAYA — детали вызова](./images/cdr-avaya-details.png)
 
 ### Системная диагностика
 
-![CDR AVAYA — диагностика](https://vovan-t.github.io/CDR-AVAYA/images/cdr-avaya-diagnostics.png)
+![CDR AVAYA — диагностика](./images/cdr-avaya-diagnostics.png)
 
 ## Возможности
 
