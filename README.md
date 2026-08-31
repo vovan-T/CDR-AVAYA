@@ -10,15 +10,15 @@ Base installation: **2.5.0**. Current cumulative update: **2.5.4**.
 
 ### Call journal
 
-![CDR AVAYA call journal](https://cdn.jsdelivr.net/gh/vovan-T/CDR-AVAYA@584aa51/images/cdr-avaya-dashboard.png)
+![CDR AVAYA call journal](https://cdn.jsdelivr.net/gh/vovan-T/CDR-AVAYA@c0bc688/images/cdr-avaya-dashboard-en.png)
 
 ### Call route and linked source records
 
-![CDR AVAYA linked call details](https://cdn.jsdelivr.net/gh/vovan-T/CDR-AVAYA@584aa51/images/cdr-avaya-details.png)
+![CDR AVAYA linked call details](https://cdn.jsdelivr.net/gh/vovan-T/CDR-AVAYA@c0bc688/images/cdr-avaya-details-en.png)
 
 ### System diagnostics
 
-![CDR AVAYA system diagnostics](https://cdn.jsdelivr.net/gh/vovan-T/CDR-AVAYA@584aa51/images/cdr-avaya-diagnostics.png)
+![CDR AVAYA system diagnostics](https://cdn.jsdelivr.net/gh/vovan-T/CDR-AVAYA@c0bc688/images/cdr-avaya-diagnostics-en.png)
 
 ## Highlights
 
