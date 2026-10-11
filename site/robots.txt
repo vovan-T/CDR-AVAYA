@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://vovan-t.github.io/CDR-AVAYA/sitemap.xml
