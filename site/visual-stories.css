@@ -6,9 +6,7 @@
 }
 
 .visual-link {
-  display: grid;
-  gap: 12px;
-  color: var(--ink);
+  display: block;
   text-decoration: none;
 }
 
@@ -28,18 +26,21 @@
   background: #111;
 }
 
-.visual-link strong {
-  font-size: 17px;
+.visual-entry h3 {
+  margin: 14px 0 5px;
+  font-size: 18px;
+}
+
+.visual-entry p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.45;
 }
 
 .visual-link:hover img,
 .visual-link:focus-visible img {
-  border-color: var(--red);
-}
-
-.visual-link:hover strong,
-.visual-link:focus-visible strong {
-  color: var(--red);
+  border-color: #63717a;
 }
 
 .visual-details {
@@ -70,66 +71,21 @@
   font-size: 18px;
 }
 
-.development-note strong {
-  color: var(--red);
+.source-test {
+  font-size: 16px !important;
 }
 
-.feature-list {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0 36px;
-  max-width: 1040px;
-  margin: 18px 0 0;
-  padding: 0;
-  list-style: none;
+.source-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  font-size: 15px !important;
 }
 
-.feature-list li {
-  position: relative;
-  padding: 11px 0 11px 24px;
-  border-bottom: 1px solid var(--line);
-}
-
-.feature-list li::before {
-  content: "";
-  position: absolute;
-  top: 20px;
-  left: 2px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--red);
-}
-
-.verification {
-  max-width: 900px;
-  margin-top: 28px;
-  padding: 18px 20px;
-  border-left: 4px solid var(--green);
-  background: var(--soft);
-}
-
-.verification h4 {
-  margin: 0 0 6px;
-  font-size: 17px;
-}
-
-.verification p {
-  margin: 0 0 8px;
-  color: var(--muted);
-}
-
-.manual-link {
-  display: inline-block;
-  margin-top: 22px;
-  color: var(--red);
-  font-weight: 800;
-  text-decoration: none;
-}
-
-.manual-link:hover,
-.manual-link:focus-visible {
+.source-links a {
+  color: var(--ink);
   text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 @media (max-width: 900px) {
@@ -139,8 +95,7 @@
 }
 
 @media (max-width: 620px) {
-  .visual-index,
-  .feature-list {
+  .visual-index {
     grid-template-columns: 1fr;
   }
 
