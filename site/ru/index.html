@@ -55,7 +55,7 @@
       <a class="button secondary" href="https://github.com/vovan-T/CDR-AVAYA/blob/main/INSTALL_RU.md">Инструкция</a>
     </div>
     <dl class="facts">
-      <div><dt>4</dt><dd>отдельных конвейера</dd></div>
+      <div><dt>4</dt><dd>проверенных конвейера</dd></div>
       <div><dt>RAW</dt><dd>сохраняется для пересчёта</dd></div>
       <div><dt>Docker</dt><dd>онлайн и полностью автономно</dd></div>
     </dl>
@@ -72,60 +72,108 @@
 
 <section id="sources" class="band muted">
   <div class="content">
-    <p class="section-label">ПОДДЕРЖИВАЕМЫЕ ИСТОЧНИКИ</p>
-    <h2>Каждый источник сохраняет свою семантику</h2>
-    <div class="source-grid">
-      <article><h3>Communication Manager</h3><p>Приём TCP, customized и unformatted форматы, пересборка цепочек UCID, транки, VDN и condition-code в деталях.</p><a href="#architecture">Обработка CM</a></article>
-      <article><h3>Session Manager</h3><p>Загрузка расширенного XML по SFTP, сохранение исходных записей, идентификация сервера и связанные детали.</p><a href="#architecture">Обработка SM</a></article>
-      <article><h3>SBCE</h3><p>Каталоги SFTP, корреляция по сессии, Routing Profile, Server Flow и все исходные строки.</p><a href="#architecture">Обработка SBCE</a></article>
-      <article><h3>Equinox Management</h3><p>XML конференций, участники, контроль изменений SHA-256 и безопасное повторное получение.</p><a href="#architecture">Обработка Equinox</a></article>
+    <p class="section-label">КАРТА ФУНКЦИЙ</p>
+    <h2>Выберите картинку и посмотрите, что делает система</h2>
+    <p class="section-copy">Пять картинок образуют плоское оглавление. Каждая ведёт к такой же крупной картинке, описанию функционала, проверенному объёму и разделу руководства.</p>
+    <div class="visual-index">
+      <a class="visual-link" href="#cm-details"><img src="../assets/images/cdr-cm-processing-3d.png" alt="Обработка Communication Manager"><strong>Communication Manager</strong></a>
+      <a class="visual-link" href="#sm-details"><img src="../assets/images/cdr-sm-processing-3d.png" alt="Обработка Session Manager"><strong>Session Manager</strong></a>
+      <a class="visual-link" href="#sbce-details"><img src="../assets/images/cdr-sbce-processing-3d.png" alt="Обработка SBCE"><strong>SBCE</strong></a>
+      <a class="visual-link" href="#eq-details"><img src="../assets/images/cdr-eq-processing-3d.png" alt="Обработка Equinox Management"><strong>Equinox Management</strong></a>
+      <a class="visual-link" href="#other-details"><img src="../assets/images/cdr-other-processing-3d.png" alt="Обработка универсального источника Other"><strong>Other</strong></a>
     </div>
   </div>
 </section>
 
 <section id="architecture" class="band">
   <div class="content">
-    <p class="section-label">ПУТЬ ДАННЫХ</p>
-    <h2>Принятые данные можно восстановить</h2>
-    <p class="section-copy">Сборщики фиксируют пакеты в SQLite WAL до подтверждения приёма. Запись PostgreSQL RAW остаётся необработанной, пока процессор источника не запишет вызов и детали одной транзакцией. Поздняя запись CM пересобирает всю цепочку UCID.</p>
-    <div class="diagram-grid">
-      <figure>
+    <p class="section-label">ОПИСАНИЕ ФУНКЦИОНАЛА</p>
+    <h2>От исходной записи до рабочего журнала</h2>
+    <div class="visual-details">
+      <article id="cm-details" class="visual-detail source-detail">
+        <h3>Communication Manager</h3>
         <img src="../assets/images/cdr-cm-processing-3d.png" alt="Схема обработки CDR Communication Manager" loading="lazy">
-        <figcaption><strong>Communication Manager</strong><span>Запись CM приходит по TCP, сохраняется в устойчивой очереди и RAW, затем собирается в связанную цепочку вызова по UCID.</span></figcaption>
-      </figure>
-      <figure>
-        <img src="../assets/images/cdr-sm-processing-3d.png" alt="Схема обработки CDR Session Manager" loading="lazy">
-        <figcaption><strong>Session Manager</strong><span>Расширенный XML забирается по SFTP, сохраняется вместе с источником и превращается в доступные для поиска записи сессий.</span></figcaption>
-      </figure>
-      <figure>
-        <img src="../assets/images/cdr-sbce-processing-3d.png" alt="Схема обработки CDR SBCE" loading="lazy">
-        <figcaption><strong>SBCE</strong><span>SBCE складывает CSV в отдельную входную папку; записи нормализуются и объединяются в связанные детали сессии.</span></figcaption>
-      </figure>
-      <figure>
-        <img src="../assets/images/cdr-eq-processing-3d.png" alt="Схема обработки CDR Equinox" loading="lazy">
-        <figcaption><strong>Equinox Management</strong><span>SHA-256 определяет новые и изменённые XML; события и участники сохраняются и собираются в записи конференций.</span></figcaption>
-      </figure>
-    </div>
-  </div>
-</section>
+        <p>Принимает customized или unformatted CDR напрямую по TCP и сохраняет каждую принятую исходную запись до формирования журнала вызовов.</p>
+        <ul class="feature-list">
+          <li>Отдельные порты listener и схемы полей для каждой ACD.</li>
+          <li>Устойчивая очередь SQLite WAL защищает принятые пакеты при недоступности PostgreSQL.</li>
+          <li>Исходные RAW-записи остаются доступными для проверки и повторной обработки.</li>
+          <li>Корреляция по UCID пересобирает переводы, конференции и поздние этапы вызова.</li>
+          <li>В деталях сохраняются транки, VDN, condition codes, маршруты и логические этапы вызова.</li>
+        </ul>
+        <div class="verification">
+          <h4>Проверено</h4>
+          <p>Avaya Aura 8.1. Стенд VMware обработал 50 000 синтетических записей CM при подаче 10 000 записей/с без потерь и восстановил очередь после остановки PostgreSQL и listener.</p>
+          <a class="text-link" href="https://github.com/vovan-T/CDR-AVAYA/blob/main/docs/LOAD_TEST_REPORT_2026-07-16_RU.md">Отчёт нагрузочного теста</a>
+        </div>
+        <a class="manual-link" href="https://github.com/vovan-T/CDR-AVAYA/raw/main/docs/cdr-avaya-2.5-manual-ru.pdf#page=8">PDF: Communication Manager</a>
+      </article>
 
-<section class="band evidence">
-  <div class="content split">
-    <div>
-      <p class="section-label">ЭКСПЛУАТАЦИЯ</p>
-      <h2>Состояние системы видно</h2>
-      <ul class="checklist">
-        <li>Исходные RAW-записи не теряются.</li>
-        <li>Очереди и службы отображаются в диагностике.</li>
-        <li>Вызов раскрывается в упорядоченные связанные детали.</li>
-        <li>Обновления проверяются SHA-256 и поддерживают rollback.</li>
-        <li>Есть Backup/Restore, Support Pack и журнал действий.</li>
-      </ul>
+      <article id="sm-details" class="visual-detail source-detail">
+        <h3>Session Manager</h3>
+        <img src="../assets/images/cdr-sm-processing-3d.png" alt="Схема обработки CDR Session Manager" loading="lazy">
+        <p>Забирает расширенный XML CDR Session Manager по SFTP и преобразует данные сессий в отдельный журнал с поиском.</p>
+        <ul class="feature-list">
+          <li>Поддерживает один или несколько независимо настроенных серверов SM.</li>
+          <li>Сохраняет идентификатор сервера-источника и импортированные RAW-данные.</li>
+          <li>Ведёт учёт скопированных файлов и не импортирует один источник повторно.</li>
+          <li>Показывает собственные поля SM через отдельный каталог колонок «ВИД».</li>
+          <li>Связывает строку журнала со всеми исходными RAW-записями.</li>
+        </ul>
+        <div class="verification">
+          <h4>Проверено</h4>
+          <p>На стенде Avaya Aura 8.1 проверены загрузка расширенного XML, защита от повторного импорта, идентификация источника, сохранение RAW и связанные «Детали».</p>
+        </div>
+        <a class="manual-link" href="https://github.com/vovan-T/CDR-AVAYA/raw/main/docs/cdr-avaya-2.5-manual-ru.pdf#page=11">PDF: Session Manager</a>
+      </article>
+
+      <article id="sbce-details" class="visual-detail source-detail">
+        <h3>SBCE</h3>
+        <img src="../assets/images/cdr-sbce-processing-3d.png" alt="Схема обработки CDR SBCE" loading="lazy">
+        <p>Принимает CSV, которые SBCE отправляет в изолированные SFTP-каталоги, и создаёт отдельный журнал сессий для каждого настроенного экземпляра.</p>
+        <ul class="feature-list">
+          <li>Общий пользователь CDR_User принимает файлы в нумерованные каталоги экземпляров.</li>
+          <li>Защитная задержка не позволяет забрать CSV, пока SBCE ещё записывает файл.</li>
+          <li>Строки группируются по идентификатору сессии с консервативными резервными признаками.</li>
+          <li>Маршрут берётся из Routing Profile; доступны Server Flow и исходные поля.</li>
+          <li>«Детали» показывают все связанные RAW-строки, из которых собрана сессия.</li>
+        </ul>
+        <div class="verification">
+          <h4>Проверено</h4>
+          <p>На стенде Avaya Aura 8.1 проверены SFTP-загрузка, отдельные каталоги, защита незакрытого файла, связанные RAW, Routing Profile и Server Flow.</p>
+        </div>
+        <a class="manual-link" href="https://github.com/vovan-T/CDR-AVAYA/raw/main/docs/cdr-avaya-2.5-manual-ru.pdf#page=11">PDF: SBCE</a>
+      </article>
+
+      <article id="eq-details" class="visual-detail source-detail">
+        <h3>Equinox Management</h3>
+        <img src="../assets/images/cdr-eq-processing-3d.png" alt="Схема обработки CDR Equinox Management" loading="lazy">
+        <p>Забирает XML конференций Equinox, сохраняет события и участников и формирует отдельный журнал конференций.</p>
+        <ul class="feature-list">
+          <li>Получает подготовленные XML с настроенного сервера Equinox Management.</li>
+          <li>SHA-256 определяет новые и изменённые файлы независимо от их имени.</li>
+          <li>Данные конференций, событий и участников остаются разделёнными и проверяемыми.</li>
+          <li>Schedule, Reschedule и Cancel можно добавлять к обычному представлению.</li>
+          <li>RAW сохраняется для повторной обработки при изменении логики.</li>
+        </ul>
+        <div class="verification">
+          <h4>Проверено</h4>
+          <p>На Equinox Management 9.1.12 проверены импорт конференций, событий и участников, определение изменённых файлов и повторное получение.</p>
+        </div>
+        <a class="manual-link" href="https://github.com/vovan-T/CDR-AVAYA/raw/main/docs/cdr-avaya-2.5-manual-ru.pdf#page=13">PDF: Equinox Management</a>
+      </article>
+
+      <article id="other-details" class="visual-detail source-detail">
+        <h3>Other</h3>
+        <img src="../assets/images/cdr-other-processing-3d.png" alt="Схема обработки универсального источника Other" loading="lazy">
+        <p class="development-note"><strong>Разрабатывается.</strong> Схема показывает целевую архитектуру универсального источника сторонних CDR.</p>
+        <div class="verification">
+          <h4>Данные тестирования</h4>
+          <p>Подтверждённых данных интеграционного и нагрузочного тестирования Other пока нет.</p>
+        </div>
+        <a class="manual-link" href="https://github.com/vovan-T/CDR-AVAYA/raw/main/docs/cdr-avaya-2.5-manual-ru.pdf#page=14">PDF: текущая модель настройки Other</a>
+      </article>
     </div>
-    <figure class="product-shot">
-      <img src="../assets/images/cdr-avaya-details.png" alt="Интерфейс связанных деталей вызова CDR AVAYA" loading="lazy">
-      <figcaption><strong>Связанные детали вызова</strong><span>Итоговый вызов остаётся связан с каждой исходной RAW-записью, маршрутом, condition code и переходом.</span></figcaption>
-    </figure>
   </div>
 </section>
 
