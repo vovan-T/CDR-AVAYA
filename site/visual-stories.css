@@ -1,0 +1,53 @@
+.diagram-grid {
+  display: block;
+}
+
+.diagram-grid img {
+  aspect-ratio: 8 / 3;
+  object-fit: contain;
+}
+
+.diagram-grid figure + figure {
+  margin-top: 56px;
+}
+
+.diagram-grid figcaption,
+.product-shot figcaption {
+  display: grid;
+  gap: 4px;
+  margin-top: 14px;
+  color: var(--muted);
+}
+
+.diagram-grid figcaption strong,
+.product-shot figcaption strong {
+  color: var(--ink);
+  font-size: 18px;
+}
+
+.diagram-grid figcaption span,
+.product-shot figcaption span {
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.split {
+  grid-template-columns: 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+.product-shot {
+  margin-top: 8px;
+}
+
+@media (max-width: 620px) {
+  .diagram-grid figure + figure {
+    margin-top: 40px;
+  }
+
+  .diagram-grid figcaption strong,
+  .product-shot figcaption strong {
+    font-size: 17px;
+  }
+}

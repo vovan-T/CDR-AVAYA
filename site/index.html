@@ -15,7 +15,8 @@
   <meta property="og:url" content="https://vovan-t.github.io/CDR-AVAYA/">
   <meta property="og:image" content="https://vovan-t.github.io/CDR-AVAYA/assets/images/cdr-avaya-dashboard-en.png">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="https://vovan-t.github.io/CDR-AVAYA/styles.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="visual-stories.css">
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -88,10 +89,22 @@
     <h2>Accepted data remains recoverable</h2>
     <p class="section-copy">Collectors commit batches to a durable SQLite WAL spool before acknowledging them. PostgreSQL RAW rows remain pending until the source-specific processor commits the call and its details. Late CM records rebuild the complete UCID chain.</p>
     <div class="diagram-grid">
-      <figure><img src="https://vovan-t.github.io/CDR-AVAYA/assets/images/cdr-cm-processing-3d.png" alt="Communication Manager CDR processing path" loading="lazy"><figcaption>Communication Manager: TCP record to correlated call</figcaption></figure>
-      <figure><img src="https://vovan-t.github.io/CDR-AVAYA/assets/images/cdr-sm-processing-3d.png" alt="Session Manager CDR processing path" loading="lazy"><figcaption>Session Manager: SFTP XML to session journal</figcaption></figure>
-      <figure><img src="https://vovan-t.github.io/CDR-AVAYA/assets/images/cdr-sbce-processing-3d.png" alt="SBCE CDR processing path" loading="lazy"><figcaption>SBCE: pushed CSV to linked session details</figcaption></figure>
-      <figure><img src="https://vovan-t.github.io/CDR-AVAYA/assets/images/cdr-eq-processing-3d.png" alt="Equinox Management CDR processing path" loading="lazy"><figcaption>Equinox: changing XML to conference records</figcaption></figure>
+      <figure>
+        <img src="assets/images/cdr-cm-processing-3d.png" alt="Communication Manager CDR processing path" loading="lazy">
+        <figcaption><strong>Communication Manager</strong><span>A CM record arrives over TCP, is preserved in the durable spool and RAW storage, then becomes a correlated UCID call chain.</span></figcaption>
+      </figure>
+      <figure>
+        <img src="assets/images/cdr-sm-processing-3d.png" alt="Session Manager CDR processing path" loading="lazy">
+        <figcaption><strong>Session Manager</strong><span>Extended XML is retrieved over SFTP, retained with its source identity and converted into searchable session records.</span></figcaption>
+      </figure>
+      <figure>
+        <img src="assets/images/cdr-sbce-processing-3d.png" alt="SBCE CDR processing path" loading="lazy">
+        <figcaption><strong>SBCE</strong><span>SBCE pushes CSV files into an isolated upload folder; the records are normalized and grouped into linked session details.</span></figcaption>
+      </figure>
+      <figure>
+        <img src="assets/images/cdr-eq-processing-3d.png" alt="Equinox Management CDR processing path" loading="lazy">
+        <figcaption><strong>Equinox Management</strong><span>SHA-256 detects new or changed XML; events and participants are retained and assembled into conference records.</span></figcaption>
+      </figure>
     </div>
   </div>
 </section>
@@ -109,7 +122,10 @@
         <li>Backup, restore, Support Pack and audit history are included.</li>
       </ul>
     </div>
-    <figure class="product-shot"><img src="https://vovan-t.github.io/CDR-AVAYA/assets/images/cdr-avaya-details-en.png" alt="CDR AVAYA linked call details interface" loading="lazy"></figure>
+    <figure class="product-shot">
+      <img src="assets/images/cdr-avaya-details-en.png" alt="CDR AVAYA linked call details interface" loading="lazy">
+      <figcaption><strong>Linked call details</strong><span>The processed call remains connected to every contributing RAW record, route, condition code and transition.</span></figcaption>
+    </figure>
   </div>
 </section>
 

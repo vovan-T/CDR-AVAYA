@@ -15,7 +15,8 @@
   <meta property="og:url" content="https://vovan-t.github.io/CDR-AVAYA/ru/">
   <meta property="og:image" content="https://vovan-t.github.io/CDR-AVAYA/assets/images/cdr-avaya-dashboard.png">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="https://vovan-t.github.io/CDR-AVAYA/styles.css">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../visual-stories.css">
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -88,10 +89,22 @@
     <h2>Принятые данные можно восстановить</h2>
     <p class="section-copy">Сборщики фиксируют пакеты в SQLite WAL до подтверждения приёма. Запись PostgreSQL RAW остаётся необработанной, пока процессор источника не запишет вызов и детали одной транзакцией. Поздняя запись CM пересобирает всю цепочку UCID.</p>
     <div class="diagram-grid">
-      <figure><img src="https://vovan-t.github.io/CDR-AVAYA/assets/images/cdr-cm-processing-3d.png" alt="Схема обработки CDR Communication Manager" loading="lazy"><figcaption>Communication Manager: от TCP-записи до цепочки вызова</figcaption></figure>
-      <figure><img src="https://vovan-t.github.io/CDR-AVAYA/assets/images/cdr-sm-processing-3d.png" alt="Схема обработки CDR Session Manager" loading="lazy"><figcaption>Session Manager: от SFTP XML до журнала сессий</figcaption></figure>
-      <figure><img src="https://vovan-t.github.io/CDR-AVAYA/assets/images/cdr-sbce-processing-3d.png" alt="Схема обработки CDR SBCE" loading="lazy"><figcaption>SBCE: от CSV до связанных деталей сессии</figcaption></figure>
-      <figure><img src="https://vovan-t.github.io/CDR-AVAYA/assets/images/cdr-eq-processing-3d.png" alt="Схема обработки CDR Equinox" loading="lazy"><figcaption>Equinox: от изменяемого XML до конференции</figcaption></figure>
+      <figure>
+        <img src="../assets/images/cdr-cm-processing-3d.png" alt="Схема обработки CDR Communication Manager" loading="lazy">
+        <figcaption><strong>Communication Manager</strong><span>Запись CM приходит по TCP, сохраняется в устойчивой очереди и RAW, затем собирается в связанную цепочку вызова по UCID.</span></figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/images/cdr-sm-processing-3d.png" alt="Схема обработки CDR Session Manager" loading="lazy">
+        <figcaption><strong>Session Manager</strong><span>Расширенный XML забирается по SFTP, сохраняется вместе с источником и превращается в доступные для поиска записи сессий.</span></figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/images/cdr-sbce-processing-3d.png" alt="Схема обработки CDR SBCE" loading="lazy">
+        <figcaption><strong>SBCE</strong><span>SBCE складывает CSV в отдельную входную папку; записи нормализуются и объединяются в связанные детали сессии.</span></figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/images/cdr-eq-processing-3d.png" alt="Схема обработки CDR Equinox" loading="lazy">
+        <figcaption><strong>Equinox Management</strong><span>SHA-256 определяет новые и изменённые XML; события и участники сохраняются и собираются в записи конференций.</span></figcaption>
+      </figure>
     </div>
   </div>
 </section>
@@ -109,7 +122,10 @@
         <li>Есть Backup/Restore, Support Pack и журнал действий.</li>
       </ul>
     </div>
-    <figure class="product-shot"><img src="https://vovan-t.github.io/CDR-AVAYA/assets/images/cdr-avaya-details.png" alt="Интерфейс связанных деталей вызова CDR AVAYA" loading="lazy"></figure>
+    <figure class="product-shot">
+      <img src="../assets/images/cdr-avaya-details.png" alt="Интерфейс связанных деталей вызова CDR AVAYA" loading="lazy">
+      <figcaption><strong>Связанные детали вызова</strong><span>Итоговый вызов остаётся связан с каждой исходной RAW-записью, маршрутом, condition code и переходом.</span></figcaption>
+    </figure>
   </div>
 </section>
 
