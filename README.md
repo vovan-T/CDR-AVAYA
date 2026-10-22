@@ -2,6 +2,8 @@
 
 **English** | [Русский](README_RU.md)
 
+**Website:** [CDR AVAYA product overview, architecture and download](https://vovan-t.github.io/CDR-AVAYA/)
+
 CDR AVAYA is a web platform for receiving, processing, storing, and analyzing call detail records from Avaya systems.
 
 Base installation: **2.5.0**. Current cumulative update: **2.5.4**.
